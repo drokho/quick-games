@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR/f12-games\" && { [ -d node_modules ] || npm install --no-audit --no-fund --silent; } >/dev/null 2>&1 || true",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/f12-games/tools/after-run-deploy.mjs\"",
+            "timeout": 600,
+            "statusMessage": "Updating F12 Games..."
+          }
+        ]
+      }
+    ]
+  }
+}

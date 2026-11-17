@@ -1,0 +1,10 @@
+{
+  "name": "f12-games",
+  "private": true,
+  "description": "F12 Games build and upload tools for the games in this repo (copied from the f12-games project)",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {
+    "basic-ftp": "^5.0.5"
+  }
+}

@@ -1,0 +1,6 @@
+node_modules/
+dist/
+dist-pwa/
+.env.deploy
+.env.local
+.upload-cache/
