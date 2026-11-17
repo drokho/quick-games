@@ -1,0 +1,140 @@
+{
+  "_about": "What platform/run-shim.ts provides. `true` = the whole namespace or function; a list = only those members. tools/check-sdk.mjs compares a game's RundotGameAPI calls against this file. Update it whenever the shim gains something. `decisions` records how F12 Games handles RUN features that can't work the same way here.",
+  "supported": {
+    "appStorage": [
+      "getItem",
+      "setItem",
+      "removeItem",
+      "clear",
+      "length",
+      "key",
+      "setMultipleItems",
+      "removeMultipleItems"
+    ],
+    "deviceCache": [
+      "getItem",
+      "setItem",
+      "removeItem",
+      "clear",
+      "length",
+      "key",
+      "setMultipleItems",
+      "removeMultipleItems"
+    ],
+    "globalStorage": [
+      "getItem",
+      "setItem",
+      "removeItem",
+      "clear",
+      "length",
+      "key",
+      "setMultipleItems",
+      "removeMultipleItems"
+    ],
+    "cdn": [
+      "fetchAsset",
+      "resolveAssetUrl"
+    ],
+    "realtime": [
+      "createRoom",
+      "joinRoomByCode"
+    ],
+    "lifecycles": [
+      "onPause",
+      "onResume",
+      "onSleep",
+      "onAwake",
+      "onQuit"
+    ],
+    "analytics": [
+      "recordCustomEvent",
+      "trackFunnelStep"
+    ],
+    "log": true,
+    "error": true,
+    "initializeAsync": true,
+    "logging": [
+      "logDebug",
+      "logError"
+    ],
+    "triggerHapticAsync": true,
+    "requestTimeAsync": true,
+    "getFutureTimeAsync": true,
+    "formatTime": true,
+    "formatNumber": true,
+    "system": [
+      "getSafeArea",
+      "getDevice",
+      "getEnvironment",
+      "requestFullscreen",
+      "exitFullscreen",
+      "getFullscreenState",
+      "onFullscreenStateChange"
+    ],
+    "getProfile": true,
+    "gamepad": [
+      "ready",
+      "isSupported",
+      "getGamepads",
+      "onConnected"
+    ],
+    "leaderboard": [
+      "submitScore",
+      "getPagedScores",
+      "getMyRank",
+      "getPodiumScores"
+    ],
+    "iap": [
+      "getHardCurrencyBalance",
+      "spendCurrency",
+      "openStore"
+    ],
+    "ads": [
+      "isRewardedAdReadyAsync",
+      "showRewardedAdAsync",
+      "isInterstitialAdReadyAsync",
+      "showInterstitialAd"
+    ],
+    "shop": [
+      "getCatalog",
+      "getItemDetail",
+      "purchase",
+      "purchaseCollectionItem",
+      "getOrderHistory"
+    ],
+    "entitlements": [
+      "listEntitlements",
+      "getQuantity",
+      "consumeEntitlement",
+      "getLedger"
+    ],
+    "simulation": [
+      "isEnabled",
+      "getStateAsync",
+      "executeRecipeAsync",
+      "subscribeAsync"
+    ],
+    "attribution": [
+      "getAttributionParams"
+    ],
+    "app": [
+      "getMyRole"
+    ]
+  },
+  "decisions": {
+    "analytics": "No tracking on F12 Games (kids platform): every call is a no-op.",
+    "realtime": "Rooms are relays on the PHP server; custom room code does not run. See README.",
+    "triggerHapticAsync": "Uses the browser vibrate API (Android); does nothing on iPhone and desktop, which have no web vibration.",
+    "iap": "No real-money store: the balance is 0, spendCurrency fails with NOT_AVAILABLE and openStore does nothing. A game can offer its own in-game alternative (Stillness sells Crystals for gold, 1 Crystal = 1000 gold).",
+    "ads": "No ads: nothing is ever ready and nothing is shown, so no ad rewards.",
+    "shop": "Nothing is sold: the catalog is empty, getItemDetail rejects and purchase rejects with direct-purchase-unavailable.",
+    "entitlements": "Nobody owns anything: getQuantity is 0, lists are empty, consumeEntitlement rejects.",
+    "simulation": "No server-run game logic: isEnabled() is false so games use their on-device fallback; the other calls reject.",
+    "leaderboard": "Device-only: each mode keeps this device's best score, and the board shows just that one entry. A game can opt into a shared board on the F12 server with \"leaderboard\": \"shared\" in f12.config.json; players then show under a generated nickname (word lists, no free text).",
+    "getProfile": "A random device id and the playdate name (default Friend); no real names, no avatar.",
+    "attribution": "No tracking: always null.",
+    "app": "getMyRole is always none, so tester and owner tools stay hidden.",
+    "system": "Safe area from CSS env(); fullscreen through the browser (unavailable on iPhone Safari, always-on in the installed app); the ads and purchases capabilities are false.",
+    "requestTimeAsync": "No time server: serverTime is the device clock, so a player who changes the clock can skip ahead on daily rewards."
+  }
+}
