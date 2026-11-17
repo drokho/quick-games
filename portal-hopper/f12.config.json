@@ -1,0 +1,19 @@
+{
+  "slug": "portal-hopper",
+  "title": "Portal Hopper",
+  "shortName": "Portal Hop",
+  "description": "Hop through portals to spooky, spacey and frosty worlds, ride giant slides and find every hidden treat.",
+  "about": "Jump and slide through Portal Plaza, then step into a portal: Spooky Hollow has candy and friendly-but-pushy ghosts, Moon Base has low gravity for giant jumps, and Frosty Peaks is slippery all the way down.\n\nDress up your hopper with hats and sparkly trails, and find all 41 hidden treats.",
+  "themeColor": "#7b3ff2",
+  "background": "#5fb8ff",
+  "orientation": "any",
+  "icons": {
+    "192": "f12/icon-192.png",
+    "512": "f12/icon-512.png"
+  },
+  "thumbnail": "public/thumbnail.jpg",
+  "rooms": {},
+  "lazy": [],
+  "order": 50,
+  "audience": "kids"
+}

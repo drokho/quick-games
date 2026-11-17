@@ -1,10 +1,11 @@
 import { defineConfig } from 'vite';
 import { rundotGameLibrariesPlugin } from "@series-inc/rundot-game-sdk/vite";
+import { f12Pwa } from "../f12-games/platform/vite-plugin";
 
 // CDN assets in cdn/ folder are automatically served in dev mode
 
-export default defineConfig({
-  plugins: [rundotGameLibrariesPlugin()],
+export default defineConfig(({ mode }) => ({
+  plugins: mode === "pwa" ? [f12Pwa()] : [rundotGameLibrariesPlugin()],
   base: "./",
   server: {
     allowedHosts: true,
@@ -29,4 +30,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));

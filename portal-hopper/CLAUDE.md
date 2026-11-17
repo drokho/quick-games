@@ -1,4 +1,24 @@
-# Template: Phaser 3
+# Portal Hopper (RUN.world, Phaser 3)
+
+Side-view platformer for kids: a hub world (Portal Plaza) with portals to Spooky Hollow, Moon Base and
+Frosty Peaks, giant slides, a wardrobe (color, hat, trail) and 41 collectibles. Ported from the
+single-file prototype in `reference/portal-hopper.html` (brief: `reference/PORTAL_HOPPER_BRIEF.md`).
+
+## Files
+
+- **src/main.ts**: boots fonts, save, sprites; creates the Phaser game (CANVAS renderer, sized to the
+  window at device pixels); RUN lifecycles pause audio and save.
+- **src/scenes/PlayScene.ts**: the gameplay loop: physics (numbers match the prototype), slides,
+  portals and the iris transition, collectibles, ghosts, camera. Draws each frame onto a canvas texture.
+- **src/game/worlds.ts**: world layouts and per-world gravity/jump/friction/speed.
+- **src/game/save.ts**: look + collected items on `RundotGameAPI.appStorage` (key `save`).
+- **src/game/audio.ts**: procedural music per world and sfx (Web Audio).
+- **src/art/draw.ts**: all code-drawn art. **src/art/sprites.ts**: PNG overrides listed in
+  `public/sprites/sprites.json` (keys like `item-star`, `ghost`, `hat-crown`, `decor-tree`, `player-body`).
+- **src/ui.ts** + **index.html** + **src/style.css**: DOM HUD, title card, wardrobe, touch buttons, keyboard.
+- No localStorage: use the SDK storage APIs.
+
+## Template notes (RUN Phaser template)
 
 ## File Structure (as-shipped)
 
@@ -26,3 +46,11 @@
 - **New large/CDN assets** → Add to `public/cdn-assets/`, load at runtime with `RundotGameAPI.cdn.fetchAsset()` and the loader pattern above.
 - **Game config (resolution, physics)** → Phaser.Game config in main.ts.
 - **Overlay UI** → Add markup in index.html, show/hide via DOM in the scene (e.g. classList add/remove).
+
+
+## F12 Games
+
+This game is also on F12 Games (https://games.f12crowd.com/games/portal-hopper/), built with `npm run build:pwa`
+(the RUN SDK is swapped for `../f12-games/platform/run-shim.ts`).
+- Release to F12 with `npm run release -- --pwa`; a `rundot deploy` that Claude runs also updates F12 (hook).
+- After adding a new RundotGameAPI call, run `node ../f12-games/tools/check-sdk.mjs .` and fill any gap in the shim.

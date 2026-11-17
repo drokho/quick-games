@@ -1,7 +1,7 @@
 {
-  "name": "run-template-2d-phaser",
+  "name": "portal-hopper",
   "version": "1.0.0",
-  "description": "Phaser 3 + Vite + TypeScript template",
+  "description": "Portal Hopper: hop through portals to spooky, spacey and frosty worlds",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,10 @@
     "build": "npm run _build",
     "build:bundled": "cross-env RUNDOT_GAME_DISABLE_EMBEDDED_LIBS=true npm run _build",
     "preview": "vite preview",
-    "deploy": "npm run build && rundot deploy"
+    "deploy": "npm run build && rundot deploy",
+    "build:pwa": "tsc && vite build --mode pwa",
+    "dev:pwa": "vite --mode pwa",
+    "release": "node ../f12-games/tools/release.mjs"
   },
   "keywords": [
     "phaser",
