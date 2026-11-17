@@ -1,21 +1,31 @@
 # Portal Hopper (RUN.world, Phaser 3)
 
-Side-view platformer for kids: a hub world (Portal Plaza) with portals to Spooky Hollow, Moon Base and
-Frosty Peaks, giant slides, a wardrobe (color, hat, trail) and 41 collectibles. Ported from the
-single-file prototype in `reference/portal-hopper.html` (brief: `reference/PORTAL_HOPPER_BRIEF.md`).
+Side-view platformer for kids. Portal Plaza (the hub) is a long hall of portals to 23 worlds: the original
+Spooky Hollow, Moon Base and Frosty Peaks plus 20 worlds that each give the hopper a power (jetpack,
+triple jump, pogo, super speed, swimming, giant, tiny, magnet, glide, air dash, wind, spring shoes,
+flame shield, sugar rush, ghost mode, frog legs, bumper body, ground pound, beat jump, slow-mo).
+Levels are ~13,000 units long with slides, springs, moving platforms, item boxes, boost pads, bumpers,
+updrafts, a goal flag, and bad guys that only knock you back (bop them on the head to make them dizzy).
+Ported from the prototype in `reference/portal-hopper.html` (brief: `reference/PORTAL_HOPPER_BRIEF.md`).
 
 ## Files
 
-- **src/main.ts**: boots fonts, save, sprites; creates the Phaser game (CANVAS renderer, sized to the
-  window at device pixels); RUN lifecycles pause audio and save.
-- **src/scenes/PlayScene.ts**: the gameplay loop: physics (numbers match the prototype), slides,
-  portals and the iris transition, collectibles, ghosts, camera. Draws each frame onto a canvas texture.
-- **src/game/worlds.ts**: world layouts and per-world gravity/jump/friction/speed.
-- **src/game/save.ts**: look + collected items on `RundotGameAPI.appStorage` (key `save`).
-- **src/game/audio.ts**: procedural music per world and sfx (Web Audio).
-- **src/art/draw.ts**: all code-drawn art. **src/art/sprites.ts**: PNG overrides listed in
-  `public/sprites/sprites.json` (keys like `item-star`, `ghost`, `hat-crown`, `decor-tree`, `player-body`).
-- **src/ui.ts** + **index.html** + **src/style.css**: DOM HUD, title card, wardrobe, touch buttons, keyboard.
+- **src/game/defs.ts**: every world (title, power, physics, theme colours, bad guys, treats, decor, music,
+  section weights) and `ORDER` (portal order in the plaza and the "next world" chain).
+- **src/game/levelgen.ts**: builds each layout from a library of sections with a fixed seed per world.
+  Collectibles are saved by index, so changing a world's sections or seed resets that world's saved
+  treats (bump the save key in save.ts if layouts change a lot). The original worlds keep their
+  hand-made opening (`PREFIX`).
+- **src/game/types.ts**: shared types, `GY` (ground line) and `LH`. **src/game/worlds.ts**: builds `WORLDS`.
+- **src/scenes/PlayScene.ts**: physics and every power, collisions, bad guys, goal, portals, camera
+  (follows up into the sky), rendering. In dev, `window.__ph` exposes the scene for test bots.
+- **src/game/save.ts**: look, collected items and finished levels on `RundotGameAPI.appStorage` (key `save2`).
+- **src/game/audio.ts**: per-world music (variations of four base songs), sfx, beat timing for the Disco Dome.
+- **src/art/draw.ts** (prototype art, dispatch) and **src/art/draw2.ts** (new worlds' backgrounds, bad
+  guys, treats, decor, level pieces, power effects). **src/art/sprites.ts**: PNG overrides listed in
+  `public/sprites/sprites.json` (keys like `item-coin`, `enemy-slime`, `hat-crown`, `decor-palm`, `player-body`).
+- **src/ui.ts** + **index.html** + **src/style.css**: DOM HUD (world, treats, power), title card,
+  wardrobe, touch buttons, keyboard.
 - No localStorage: use the SDK storage APIs.
 
 ## Template notes (RUN Phaser template)

@@ -1,0 +1,206 @@
+// Every world: its look, power, bad guys, treats and music. Layouts are built from these by levelgen.ts.
+import type { FarType, Layer, Theme, WorldDef } from './types';
+
+const L = (type: FarType, col: string, par: number, h: number, base = 0): Layer => ({ type, col, par, h, base });
+
+const BASE = { g: 1800, jump: 720, fric: 12, speed: 310 };
+
+/** Order of portals in Portal Plaza, and of the "next world" portal at the end of each level. */
+export const ORDER = [
+  'halloween', 'space', 'ice',
+  'rocket', 'clouds', 'bouncy', 'turbo', 'lagoon', 'garden', 'toybox', 'mine', 'grove', 'dunes',
+  'windy', 'workshop', 'volcano', 'candy', 'manor', 'jungle', 'pinball', 'pirate', 'disco', 'clock',
+];
+
+const theme = (t: Partial<Theme> & Pick<Theme, 'ground' | 'top' | 'plat' | 'platTop'>): Theme =>
+  ({ dot: 'rgba(0,0,0,.08)', accent: '#5fd16a', slide: 'custom', ...t });
+
+export const DEFS: WorldDef[] = [
+  {
+    id: 'hub', title: 'Portal Plaza', sub: 'Find the portals!', label: '🏠 Portal Plaza', portalColor: '#38e07a',
+    icon: 'star', emoji: '⭐', noun: 'stars', power: 'none', powerName: '', ...BASE, length: 0,
+    theme: theme({ ground: '#9a6a45', top: '#6fd36a', plat: '#b77a4a', platTop: '#7ee07a', slide: 'rainbow' }),
+    decorKinds: ['tree', 'flower', 'bush', 'flower'], song: { base: 'hub' },
+  },
+  {
+    id: 'halloween', title: 'Spooky Hollow', sub: 'Collect the candy… watch out for ghosts', label: '🎃 Spooky Hollow', portalColor: '#ff7a1a',
+    icon: 'candy', emoji: '🍬', noun: 'candy', power: 'none', powerName: '', ...BASE, length: 14500,
+    theme: theme({ ground: '#24162f', top: '#47295c', plat: '#3d3352', platTop: '#7a6896', dot: 'rgba(255,255,255,.05)', accent: '#47295c', slide: 'bone' }),
+    walker: { art: 'roller', col: '#ff7a1a' }, flyer: { art: 'ghost', col: '#f4f0ff' },
+    decorKinds: ['deadtree', 'grave', 'pumpkin', 'grave'], song: { base: 'halloween' },
+  },
+  {
+    id: 'space', title: 'Moon Base', sub: 'Low gravity — jump big!', label: '🚀 Moon Base', portalColor: '#3d7bff',
+    icon: 'gem', emoji: '💎', noun: 'gems', power: 'lowgrav', powerName: 'Low gravity', g: 700, jump: 500, fric: 8, speed: 280, length: 12500,
+    theme: theme({ ground: '#7f7b95', top: '#b2aec8', plat: '#4f5670', platTop: '#9fe7ff', dot: 'rgba(0,0,0,.12)', slide: 'neon' }),
+    walker: { art: 'bot', col: '#b2aec8' }, flyer: { art: 'flyer', col: '#9fe7ff' },
+    decorKinds: ['rock', 'crater', 'flag', 'rock'], weights: { high: 2, patrol: 2 }, song: { base: 'space' },
+  },
+  {
+    id: 'ice', title: 'Frosty Peaks', sub: 'Slippery! Slide all the way down', label: '❄️ Frosty Peaks', portalColor: '#38d9f5',
+    icon: 'flake', emoji: '❄️', noun: 'snowflakes', power: 'slippery', powerName: 'Slippery ice', g: 1800, jump: 720, fric: 2.4, speed: 330, length: 13000,
+    theme: theme({ ground: '#cfe9fb', top: '#ffffff', plat: '#8fcdf2', platTop: '#effcff', dot: 'rgba(60,140,200,.12)', slide: 'ice' }),
+    walker: { art: 'roller', col: '#ffffff' }, flyer: { art: 'flyer', col: '#3d9bff' },
+    decorKinds: ['pine', 'pine', 'snowman'], weights: { patrol: 2 }, song: { base: 'ice' },
+  },
+  {
+    id: 'rocket', title: 'Rocket Ridge', sub: 'Jetpack! Hold jump to fly', label: '🎆 Rocket Ridge', portalColor: '#ff8a3d',
+    icon: 'bolt', emoji: '⚡', noun: 'bolts', power: 'jetpack', powerName: 'Jetpack', ...BASE, length: 13500,
+    theme: theme({ sky: ['#ff9a5c', '#ffe0b0'], far: [L('mountains', '#e08a5a', 0.15, 280), L('mountains', '#c0603e', 0.4, 180, 10)], sun: { kind: 'sun', col: '#fff1c0' },
+      ground: '#9c4a2e', top: '#e07a4a', plat: '#7a3b26', platTop: '#ffb36b', accent: '#c0603e', slideCols: ['#ffb36b', '#e0603a'] }),
+    walker: { art: 'bot', col: '#7c8aa5' }, flyer: { art: 'flyer', col: '#ffcc33' },
+    decorKinds: ['rock', 'cactus', 'rock'], weights: { high: 4, flyers: 1 }, song: { base: 'hub', root: 62, bpm: 128, wave: 'sawtooth', cut: 1800 },
+  },
+  {
+    id: 'clouds', title: 'Cloud Castle', sub: 'Triple jump! Jump again in the air', label: '☁️ Cloud Castle', portalColor: '#9ad0ff',
+    icon: 'feather', emoji: '🪶', noun: 'feathers', power: 'triple', powerName: 'Triple jump', ...BASE, length: 13000,
+    theme: theme({ sky: ['#8fd3ff', '#fff0fb'], far: [L('castles', '#e3e8ff', 0.2, 1), L('hills', '#ffffff', 0.45, 70)], sun: { kind: 'sun', col: '#fffbe0' },
+      ground: '#e8edff', top: '#ffffff', plat: '#dfe6ff', platTop: '#ffffff', dot: 'rgba(120,140,220,.12)', accent: '#ffffff', slide: 'rainbow' }),
+    walker: { art: 'slime', col: '#9ad0ff' }, flyer: { art: 'flyer', col: '#ffb3e6' },
+    decorKinds: ['cloudbush', 'column', 'cloudbush'], weights: { high: 3, stairs: 1 }, song: { base: 'space', root: 67, bpm: 96, wave: 'triangle' },
+  },
+  {
+    id: 'bouncy', title: 'Bouncy Castle', sub: 'Pogo bounce! Hold jump to boing higher', label: '🎈 Bouncy Castle', portalColor: '#ff6fb1',
+    icon: 'balloon', emoji: '🎈', noun: 'balloons', power: 'pogo', powerName: 'Pogo bounce', ...BASE, length: 13000,
+    theme: theme({ sky: ['#ffd3ec', '#fff6c9'], far: [L('hills', '#ffb3d9', 0.25, 120), L('hills', '#ff8fc7', 0.5, 70)], sun: { kind: 'sun', col: '#fff3a0' },
+      ground: '#ff6fb1', top: '#ffe14d', plat: '#7bd3ff', platTop: '#ffffff', accent: '#ff8fc7', slide: 'rainbow' }),
+    walker: { art: 'slime', col: '#7bffb0' }, hopper: { art: 'frog', col: '#ffb020' },
+    decorKinds: ['flower', 'lollipop', 'flower'], weights: { springs: 3, high: 2 }, song: { base: 'hub', root: 65, bpm: 140 },
+  },
+  {
+    id: 'turbo', title: 'Turbo Track', sub: 'Super speed! Zoom zoom!', label: '🏁 Turbo Track', portalColor: '#ff5d5d',
+    icon: 'coin', emoji: '🪙', noun: 'coins', power: 'speed', powerName: 'Super speed', g: 1800, jump: 720, fric: 12, speed: 640, length: 14000,
+    theme: theme({ sky: ['#2b3a67', '#ff9f6b'], far: [L('city', '#3a3360', 0.15, 260), L('city', '#271f45', 0.35, 170)], sun: { kind: 'sun', col: '#ffd0a0' },
+      ground: '#3d3d4a', top: '#ffd23d', plat: '#55556a', platTop: '#ff5d5d', accent: '#ff5d5d', slide: 'neon' }),
+    walker: { art: 'roller', col: '#ff5d5d' }, flyer: { art: 'flyer', col: '#5ef0ff' },
+    decorKinds: ['lamp', 'lamp', 'rock'], weights: { boost: 4, patrol: 3 }, song: { base: 'hub', root: 60, bpm: 150, wave: 'sawtooth', cut: 1800 },
+  },
+  {
+    id: 'lagoon', title: 'Bubble Lagoon', sub: 'Underwater! Tap jump to swim up', label: '🐠 Bubble Lagoon', portalColor: '#3cc6e0',
+    icon: 'shell', emoji: '🐚', noun: 'shells', power: 'swim', powerName: 'Swimming', g: 650, jump: 330, fric: 6, speed: 260, length: 12500,
+    theme: theme({ sky: ['#0b4f8a', '#3cc6e0'], far: [L('crystals', '#0e6a8f', 0.2, 200), L('waves', '#0a5577', 0.45, 60)], fg: 'bubbles',
+      ground: '#e9d39a', top: '#f6e7b5', plat: '#2fa39b', platTop: '#7ff0d0', accent: '#2fbf7a', slideCols: ['#7ff0d0', '#2fa39b'] }),
+    walker: { art: 'crab', col: '#ff6a4d' }, flyer: { art: 'fish', col: '#ffd23d' },
+    decorKinds: ['coral', 'coral', 'rock'], weights: { high: 4, flyers: 2 }, song: { base: 'space', root: 58, bpm: 84, wave: 'sine' },
+  },
+  {
+    id: 'garden', title: "Giant's Garden", sub: "You're GIANT! Bump baddies away", label: "🌻 Giant's Garden", portalColor: '#ffd23d',
+    icon: 'flower', emoji: '🌼', noun: 'flowers', power: 'giant', powerName: 'Giant size', ...BASE, length: 13000,
+    theme: theme({ sky: ['#7cc8ff', '#e6ffd6'], far: [L('hills', '#8fd87a', 0.25, 130), L('forest', '#5fbf5a', 0.5, 1)], sun: { kind: 'sun', col: '#fff3a0' },
+      ground: '#7a5230', top: '#59c94f', plat: '#a8754a', platTop: '#7ee07a', accent: '#4fbf5a', slideCols: ['#ffe14d', '#ffb020'] }),
+    walker: { art: 'slime', col: '#b07bff' }, flyer: { art: 'bee', col: '#ffd23d' },
+    decorKinds: ['flower', 'tree', 'bush', 'mushroom'], weights: { patrol: 5, flyers: 2 }, song: { base: 'hub', root: 64, bpm: 110, wave: 'triangle' },
+  },
+  {
+    id: 'toybox', title: 'Tiny Toybox', sub: "You're tiny! Tiny hops go high", label: '🧸 Tiny Toybox', portalColor: '#ff6f6f',
+    icon: 'heart', emoji: '💖', noun: 'hearts', power: 'tiny', powerName: 'Tiny size', g: 1800, jump: 720, fric: 12, speed: 300, length: 12500,
+    theme: theme({ sky: ['#ffe9c7', '#fff9ee'], far: [L('city', '#a8dcff', 0.2, 220), L('hills', '#ffcf8f', 0.45, 60)], sun: { kind: 'sun', col: '#ffe9a0' },
+      ground: '#c98b55', top: '#ff6f6f', plat: '#5fb8ff', platTop: '#ffe14d', accent: '#5fd16a', slide: 'rainbow' }),
+    walker: { art: 'bot', col: '#ff6f6f' }, hopper: { art: 'frog', col: '#5fd16a' },
+    decorKinds: ['toyblock', 'lollipop', 'toyblock'], weights: { stairs: 3, high: 2, boxes: 2 }, song: { base: 'ice', root: 69, bpm: 120, wave: 'square', cut: 2400 },
+  },
+  {
+    id: 'mine', title: 'Magnet Mine', sub: 'Magnet! Treats zoom right to you', label: '🧲 Magnet Mine', portalColor: '#c9a14a',
+    icon: 'crystal', emoji: '🔮', noun: 'crystals', power: 'magnet', powerName: 'Magnet', ...BASE, length: 13000,
+    theme: theme({ sky: ['#1a1230', '#3b2a4f'], far: [L('crystals', '#4a3570', 0.2, 230), L('mountains', '#2c2140', 0.45, 150)], fg: 'sparkle',
+      ground: '#4a3a32', top: '#8a6a4a', plat: '#5a4a42', platTop: '#b98f5f', dot: 'rgba(255,255,255,.05)', accent: '#b07bff', slideCols: ['#c9a14a', '#7a5a32'] }),
+    walker: { art: 'bot', col: '#c9a14a' }, flyer: { art: 'flyer', col: '#ff7ad9' },
+    decorKinds: ['crystal', 'lamp', 'rock'], weights: { treats: 4, high: 2 }, song: { base: 'halloween', root: 55, bpm: 100, wave: 'square', cut: 1400 },
+  },
+  {
+    id: 'grove', title: 'Glide Grove', sub: 'Hold jump while falling to glide', label: '🍃 Glide Grove', portalColor: '#e0782a',
+    icon: 'leaf', emoji: '🍁', noun: 'leaves', power: 'glide', powerName: 'Leaf glider', ...BASE, length: 13000,
+    theme: theme({ sky: ['#ffcf8f', '#fff2d9'], far: [L('forest', '#e08a3a', 0.2, 1), L('forest', '#b85a2a', 0.45, 1)], fg: 'leaves', sun: { kind: 'sun', col: '#fff0c0' },
+      ground: '#6a3f22', top: '#e0782a', plat: '#8a5a32', platTop: '#ffb050', accent: '#e0782a', slideCols: ['#ffb050', '#e0782a'] }),
+    walker: { art: 'slime', col: '#7fbf4a' }, flyer: { art: 'flyer', col: '#7a5af0' },
+    decorKinds: ['tree', 'mushroom', 'bush'], weights: { high: 4, updraft: 1 }, song: { base: 'ice', root: 62, bpm: 100, wave: 'triangle' },
+  },
+  {
+    id: 'dunes', title: 'Dash Dunes', sub: 'Air dash! Jump in the air to dash', label: '🏜️ Dash Dunes', portalColor: '#f0b060',
+    icon: 'orb', emoji: '🟠', noun: 'sun orbs', power: 'airdash', powerName: 'Air dash', ...BASE, length: 14000,
+    theme: theme({ sky: ['#ffc46b', '#fff1cf'], far: [L('dunes', '#f0b060', 0.2, 120), L('dunes', '#e09a48', 0.45, 70)], sun: { kind: 'sun', col: '#fff6d0' },
+      ground: '#d98c3a', top: '#f6c47a', plat: '#b06a2a', platTop: '#ffd88a', accent: '#5fa04a', slideCols: ['#ffd88a', '#d98c3a'] }),
+    walker: { art: 'roller', col: '#a8743a' }, flyer: { art: 'flyer', col: '#6a4a3a' },
+    decorKinds: ['cactus', 'rock', 'palm'], weights: { movers: 3, high: 2, patrol: 2 }, song: { base: 'halloween', root: 57, bpm: 116, wave: 'sawtooth', cut: 1600 },
+  },
+  {
+    id: 'windy', title: 'Windy Wheatfields', sub: 'Whoosh! Ride the wind', label: '🌾 Windy Wheatfields', portalColor: '#e6cf5a',
+    icon: 'feather', emoji: '🪶', noun: 'feathers', power: 'wind', powerName: 'Tailwind', ...BASE, length: 14000,
+    theme: theme({ sky: ['#8fd3ff', '#fff6d0'], far: [L('hills', '#d8c65a', 0.2, 110), L('hills', '#c9b040', 0.45, 60)], fg: 'wind', sun: { kind: 'sun', col: '#fff3a0' },
+      ground: '#8a6a3a', top: '#e6cf5a', plat: '#a8854a', platTop: '#ffe58a', accent: '#c9b040', slideCols: ['#ffe58a', '#c9a040'] }),
+    walker: { art: 'roller', col: '#e6cf5a' }, flyer: { art: 'flyer', col: '#ffffff' },
+    decorKinds: ['wheat', 'wheat', 'tree'], weights: { updraft: 5, high: 2 }, song: { base: 'space', root: 64, bpm: 104, wave: 'triangle' },
+  },
+  {
+    id: 'workshop', title: 'Spring Workshop', sub: 'Spring shoes! Super high jumps', label: '🔩 Spring Workshop', portalColor: '#ffb020',
+    icon: 'gear', emoji: '⚙️', noun: 'gears', power: 'springshoes', powerName: 'Spring shoes', ...BASE, length: 13000,
+    theme: theme({ sky: ['#5a6a7a', '#c9d6e0'], far: [L('city', '#4a5866', 0.2, 240), L('city', '#3a4652', 0.45, 150)],
+      ground: '#4a4a52', top: '#ffb020', plat: '#6a6a78', platTop: '#ffd23d', accent: '#ffb020', slideCols: ['#ffd23d', '#55555f'] }),
+    walker: { art: 'bot', col: '#5fb8ff' }, hopper: { art: 'bot', col: '#ff8a3d' },
+    decorKinds: ['gear', 'lamp', 'gear'], weights: { springs: 4, high: 2 }, song: { base: 'hub', root: 59, bpm: 124, wave: 'square', cut: 2000 },
+  },
+  {
+    id: 'volcano', title: 'Volcano Vault', sub: 'Flame shield! Knock baddies flying', label: '🌋 Volcano Vault', portalColor: '#ff3d2b',
+    icon: 'flame', emoji: '🔥', noun: 'flames', power: 'flameshield', powerName: 'Flame shield', ...BASE, length: 13000,
+    theme: theme({ sky: ['#2a0a12', '#a8321e'], far: [L('mountains', '#3a1418', 0.2, 260), L('crystals', '#24090c', 0.45, 130)], fg: 'embers',
+      ground: '#2a1414', top: '#ff6a2b', plat: '#3a2020', platTop: '#ff9a3d', dot: 'rgba(255,120,40,.08)', accent: '#ff6a2b', slideCols: ['#ffb020', '#ff3d2b'] }),
+    walker: { art: 'roller', col: '#5a4a4a' }, flyer: { art: 'flyer', col: '#ffcc33' },
+    decorKinds: ['rock', 'crystal', 'rock'], weights: { patrol: 5, hoppers: 1 }, song: { base: 'halloween', root: 52, bpm: 112, wave: 'sawtooth', cut: 1200 },
+  },
+  {
+    id: 'candy', title: 'Candy Kingdom', sub: 'Sugar rush! Treats make you zoom', label: '🍭 Candy Kingdom', portalColor: '#ff5d8f',
+    icon: 'cupcake', emoji: '🧁', noun: 'cupcakes', power: 'sugar', powerName: 'Sugar rush', ...BASE, length: 13500,
+    theme: theme({ sky: ['#ffb8e6', '#fff0f8'], far: [L('hills', '#ff9ed6', 0.25, 120), L('hills', '#ffc2e6', 0.5, 60)], fg: 'confetti', sun: { kind: 'sun', col: '#fffbe0' },
+      ground: '#8a4a2a', top: '#ff8fc7', plat: '#ffffff', platTop: '#ff5d8f', accent: '#ff5d8f', slideCols: ['#ff5d8f', '#ffffff'] }),
+    walker: { art: 'slime', col: '#5fd16a' }, hopper: { art: 'frog', col: '#ff5d5d' }, flyer: { art: 'bee', col: '#ffd23d' },
+    decorKinds: ['lollipop', 'candycane', 'lollipop'], weights: { treats: 3, boost: 1 }, song: { base: 'hub', root: 67, bpm: 132, wave: 'triangle' },
+  },
+  {
+    id: 'manor', title: 'Haunted Manor', sub: 'Ghost mode! Float right through baddies', label: '🗝️ Haunted Manor', portalColor: '#9a8ac0',
+    icon: 'key', emoji: '🗝️', noun: 'keys', power: 'ghostmode', powerName: 'Ghost mode', ...BASE, length: 13000,
+    theme: theme({ sky: ['#1a1430', '#4a2a6a'], far: [L('castles', '#2a1c40', 0.25, 1), L('hills', '#1c1430', 0.45, 60)], fg: 'fog', sun: { kind: 'moon', col: '#fff2c9' },
+      ground: '#2a2238', top: '#5a4a7a', plat: '#3a3050', platTop: '#9a8ac0', dot: 'rgba(255,255,255,.05)', accent: '#3a3050', slide: 'bone' }),
+    walker: { art: 'slime', col: '#7cff6b' }, flyer: { art: 'ghost', col: '#f4f0ff' },
+    decorKinds: ['grave', 'deadtree', 'lamp'], weights: { flyers: 4, patrol: 3 }, song: { base: 'halloween', root: 55, bpm: 92 },
+  },
+  {
+    id: 'jungle', title: 'Jungle Jump', sub: 'Frog legs! Hold jump, let go to LEAP', label: '🐸 Jungle Jump', portalColor: '#3ad16a',
+    icon: 'apple', emoji: '🍎', noun: 'apples', power: 'froglegs', powerName: 'Frog legs', ...BASE, length: 13000,
+    theme: theme({ sky: ['#3aa86a', '#d6f5c0'], far: [L('forest', '#2f8a4f', 0.2, 1), L('forest', '#1f6a3a', 0.45, 1)],
+      ground: '#5a3a20', top: '#4fbf5a', plat: '#7a5232', platTop: '#7ee07a', accent: '#2f9a4f', slideCols: ['#7ee07a', '#2f8a4f'] }),
+    walker: { art: 'slime', col: '#ff6fb1' }, flyer: { art: 'bee', col: '#ffd23d' }, hopper: { art: 'frog', col: '#3a9ad1' },
+    decorKinds: ['palm', 'bush', 'flower'], weights: { high: 3, hoppers: 1 }, song: { base: 'ice', root: 60, bpm: 116, wave: 'triangle' },
+  },
+  {
+    id: 'pinball', title: 'Pinball Palace', sub: 'Bumper body! Boing off everything', label: '🎱 Pinball Palace', portalColor: '#ff4fd8',
+    icon: 'orb', emoji: '🔵', noun: 'orbs', power: 'bumper', powerName: 'Bumper body', ...BASE, length: 13000,
+    theme: theme({ sky: ['#120a2a', '#3a1a6a'], far: [L('city', '#2a1a50', 0.2, 230)], fg: 'sparkle',
+      ground: '#1a1238', top: '#3df2ff', plat: '#2a2060', platTop: '#ff4fd8', dot: 'rgba(255,255,255,.05)', accent: '#ff4fd8', slide: 'neon' }),
+    walker: { art: 'roller', col: '#c0c0d0' }, flyer: { art: 'flyer', col: '#ff4fd8' },
+    decorKinds: ['lamp', 'lamp'], weights: { bumpers: 6, springs: 1 }, song: { base: 'hub', root: 62, bpm: 136, wave: 'square' },
+  },
+  {
+    id: 'pirate', title: 'Pirate Cove', sub: 'Ground pound! Jump in the air to SLAM', label: '🏴‍☠️ Pirate Cove', portalColor: '#2a8fd0',
+    icon: 'coin', emoji: '🪙', noun: 'gold coins', power: 'groundpound', powerName: 'Ground pound', ...BASE, length: 13000,
+    theme: theme({ sky: ['#5fc8ff', '#e0f8ff'], far: [L('waves', '#2a8fd0', 0.15, 40, -30), L('dunes', '#f0d8a0', 0.45, 50)], sun: { kind: 'sun', col: '#fffbe0' },
+      ground: '#e9cf8a', top: '#fff0c0', plat: '#8a5a32', platTop: '#c98b55', accent: '#3dbf6a', slideCols: ['#c98b55', '#8a5a32'] }),
+    walker: { art: 'crab', col: '#ff5d3d' }, flyer: { art: 'flyer', col: '#3ddc84' },
+    decorKinds: ['palm', 'barrel', 'rock'], weights: { boxes: 4, patrol: 3 }, song: { base: 'halloween', root: 62, bpm: 120, wave: 'triangle', cut: 2000 },
+  },
+  {
+    id: 'disco', title: 'Disco Dome', sub: 'Jump on the beat for MEGA jumps!', label: '🪩 Disco Dome', portalColor: '#3df2ff',
+    icon: 'note', emoji: '🎵', noun: 'notes', power: 'beat', powerName: 'Beat jump', ...BASE, length: 12500,
+    theme: theme({ sky: ['#1a0a2a', '#5a1a6a'], sun: { kind: 'disco', col: '#e0e0ff' }, fg: 'confetti',
+      ground: '#2a1a3a', top: '#ff4fd8', plat: '#3a2a5a', platTop: '#3df2ff', dot: 'rgba(255,255,255,.06)', accent: '#ff4fd8', slide: 'neon' }),
+    walker: { art: 'slime', col: '#3df2ff' }, flyer: { art: 'flyer', col: '#ff4fd8' },
+    decorKinds: ['speaker', 'lamp', 'speaker'], weights: { high: 3, stairs: 2 }, song: { base: 'hub', root: 64, bpm: 120, wave: 'square' },
+  },
+  {
+    id: 'clock', title: 'Clockwork Tower', sub: 'Slow-mo! Everything else moves slow', label: '⏰ Clockwork Tower', portalColor: '#e0b878',
+    icon: 'gear', emoji: '⚙️', noun: 'gears', power: 'slowmo', powerName: 'Slow-mo', ...BASE, length: 13000,
+    theme: theme({ sky: ['#5a3a20', '#e0b878'], far: [L('city', '#7a5232', 0.2, 260), L('castles', '#5a3a20', 0.45, 1)], sun: { kind: 'clock', col: '#fff3d0' }, fg: 'sepia',
+      ground: '#4a3220', top: '#c99a4a', plat: '#6a4a2a', platTop: '#e0b878', accent: '#c99a4a', slideCols: ['#e0b878', '#8a6a3a'] }),
+    walker: { art: 'bot', col: '#c9a14a' }, flyer: { art: 'flyer', col: '#8a6a4a' },
+    decorKinds: ['gear', 'column', 'gear'], weights: { movers: 4, flyers: 2 }, song: { base: 'ice', root: 57, bpm: 90, wave: 'triangle' },
+  },
+];

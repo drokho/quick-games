@@ -1,8 +1,9 @@
 // Code-drawn art (Canvas 2D), ported from the prototype. Every piece can be swapped for a PNG
 // through src/art/sprites.ts without touching the game code.
-import { GY, type Decor, type ItemKind, type Portal, type Slide, type WorldId } from '../game/worlds';
+import { GY, type Decor, type ItemKind, type Portal, type Slide, type Theme, type Fg } from '../game/types';
 import type { Look } from '../game/save';
 import { drawSprite } from './sprites';
+import { bgGeneric, fgGeneric, drawItem2, drawDecor2, drawSlideCustom } from './draw2';
 
 export const TAU = Math.PI * 2;
 export const FONT = "Fredoka, ui-rounded, 'Segoe UI Rounded', system-ui, sans-serif";
@@ -139,7 +140,7 @@ function castle(c: C, x: number, base: number) {
   c.fillStyle = 'rgba(255,200,90,.85)'; c.fillRect(x - 8, base - 140, 10, 14); c.fillRect(x + 164, base - 160, 10, 14); c.fillRect(x + 60, base - 70, 12, 16);
 }
 
-export const BG: Record<WorldId, (c: C, cx: number, t: number, oy: number) => void> = {
+const BG: Record<string, (c: C, cx: number, t: number, oy: number) => void> = {
   hub(c, cx, t, oy) {
     const hz = GY + oy, g = c.createLinearGradient(0, 0, 0, hz); g.addColorStop(0, '#5fb8ff'); g.addColorStop(1, '#d6f1ff'); c.fillStyle = g; c.fillRect(0, 0, view.w, view.h);
     const sx = view.w * 0.8 - cx * 0.02, sy = 90 + oy * 0.3, sg = c.createRadialGradient(sx, sy, 10, sx, sy, 120);
@@ -188,7 +189,7 @@ export const BG: Record<WorldId, (c: C, cx: number, t: number, oy: number) => vo
   },
 };
 
-export const FG: Partial<Record<WorldId, (c: C, cx: number, t: number, oy: number) => void>> = {
+const FG: Record<string, (c: C, cx: number, t: number, oy: number) => void> = {
   halloween(c, cx, t, oy) {
     const hz = GY + oy;
     for (let i = 0; i < 4; i++) {
@@ -205,6 +206,13 @@ export const FG: Partial<Record<WorldId, (c: C, cx: number, t: number, oy: numbe
   },
 };
 
+export function drawBackground(c: C, id: string, th: Theme, cx: number, t: number, oy: number) {
+  const f = BG[id]; if (f) f(c, cx, t, oy); else bgGeneric(c, th, cx, t, oy);
+}
+export function drawForeground(c: C, id: string, fg: Fg | undefined, cx: number, t: number, oy: number) {
+  const f = FG[id]; if (f) f(c, cx, t, oy); else fgGeneric(c, fg, cx, t, oy);
+}
+
 // ---------- world pieces ----------
 function drawPumpkin(c: C, x: number, y: number, t: number) {
   c.save(); c.translate(x, y);
@@ -220,9 +228,10 @@ function drawPumpkin(c: C, x: number, y: number, t: number) {
   c.restore();
 }
 
-export function drawDecor(c: C, d: Decor, t: number) {
+export function drawDecor(c: C, d: Decor, t: number, accent = '#5fd16a') {
   const x = d.x, y = GY;
   if (drawSprite(c, 'decor-' + d.t, x, y)) return;
+  if (drawDecor2(c, d.t, x, t, accent)) return;
   switch (d.t) {
     case 'tree':
       c.fillStyle = '#8a5a3b'; c.fillRect(x - 8, y - 72, 16, 72); c.fillStyle = '#4fbf5a'; circ(c, x, y - 96, 40); c.fill();
@@ -288,8 +297,15 @@ export function drawDecor(c: C, d: Decor, t: number) {
 }
 
 export function drawSlide(c: C, s: Slide) {
+  if (s.style === 'custom') {
+    const th = 18, bot = (x: number) => s.y1 + s.k * (x - s.x1); c.strokeStyle = s.cols?.[1] ?? '#888'; c.lineWidth = 7; c.lineCap = 'round';
+    for (let x = s.x1 + 50; x < s.x2 - 40; x += 110) { c.beginPath(); c.moveTo(x, bot(x) + th - 2); c.lineTo(x, GY); c.stroke(); }
+    drawSlideCustom(c, s.x1, s.y1, s.x2, s.y2, s.cols ?? ['#ffffff', '#aaaaaa']);
+    c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; c.beginPath(); c.moveTo(s.x1, s.y1 + 1); c.lineTo(s.x2, s.y2 + 1); c.stroke();
+    return;
+  }
   const th = 18, bot = (x: number) => s.y1 + s.k * (x - s.x1);
-  const sup = { rainbow: '#8a5a3b', bone: '#3a2b4a', neon: '#36406a', ice: '#9fd2f0' }[s.style];
+  const sup = { rainbow: '#8a5a3b', bone: '#3a2b4a', neon: '#36406a', ice: '#9fd2f0', custom: '#888' }[s.style];
   c.strokeStyle = sup; c.lineWidth = 7; c.lineCap = 'round';
   for (let x = s.x1 + 50; x < s.x2 - 40; x += 110) { c.beginPath(); c.moveTo(x, bot(x) + th - 2); c.lineTo(x, GY); c.stroke(); }
   const band = (o1: number, o2: number, col: string) => {
@@ -326,7 +342,7 @@ export function drawItem(c: C, kind: ItemKind, x: number, y: number, t: number) 
   } else if (kind === 'flake') {
     c.strokeStyle = '#ffffff'; c.lineWidth = 3; c.lineCap = 'round'; c.shadowColor = '#3d9bff'; c.shadowBlur = 8;
     for (let i = 0; i < 6; i++) { c.rotate(TAU / 6); c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -14); c.moveTo(0, -8); c.lineTo(-5, -12); c.moveTo(0, -8); c.lineTo(5, -12); c.stroke(); }
-  }
+  } else drawItem2(c, kind, t);
   c.restore();
 }
 

@@ -9,12 +9,16 @@ export const TRAILS: [string, string][] = [['none', 'None'], ['sparkle', 'Sparkl
 export interface Look { color: string; hat: string; trail: string }
 export const look: Look = { color: '#ff5d8f', hat: 'witch', trail: 'sparkle' };
 
-const KEY = 'save';
-interface SaveBlob { v: 1; look: Look; got: Record<string, number[]> }
+// v2: levels were rebuilt (5x longer), so v1 collectible indices no longer match; only the look carries over.
+const KEY = 'save2';
+const OLD_KEY = 'save';
+interface SaveBlob { v: 2; look: Look; got: Record<string, number[]>; done: string[] }
 
 export async function loadSave(): Promise<void> {
   try {
-    const raw = await RundotGameAPI.appStorage.getItem(KEY);
+    let raw = await RundotGameAPI.appStorage.getItem(KEY);
+    const fresh = !raw;
+    if (!raw) raw = await RundotGameAPI.appStorage.getItem(OLD_KEY);
     if (!raw) return;
     const s = JSON.parse(raw) as Partial<SaveBlob>;
     if (s.look) {
@@ -22,9 +26,12 @@ export async function loadSave(): Promise<void> {
       if (HATS.some(h => h[0] === s.look!.hat)) look.hat = s.look.hat;
       if (TRAILS.some(t => t[0] === s.look!.trail)) look.trail = s.look.trail;
     }
+    if (fresh) return; // old save: look only
     for (const id of WORLD_IDS) {
       for (const i of s.got?.[id] ?? []) { const it = WORLDS[id].items[i]; if (it) it.got = true; }
     }
+    for (const id of s.done ?? []) if (WORLDS[id]) WORLDS[id].done = true;
+    for (const id of WORLD_IDS) for (const it of WORLDS[id].items) if (it.got && it.box !== undefined) WORLDS[id].boxes[it.box].used = true;
   } catch (e) {
     console.warn('[save] load failed', e);
   }
@@ -40,7 +47,8 @@ export async function saveNow(): Promise<void> {
   if (timer) { clearTimeout(timer); timer = null; }
   const got: Record<string, number[]> = {};
   for (const id of WORLD_IDS) got[id] = WORLDS[id].items.flatMap((it, i) => (it.got ? [i] : []));
-  const blob: SaveBlob = { v: 1, look: { ...look }, got };
+  const done = WORLD_IDS.filter(id => WORLDS[id].done);
+  const blob: SaveBlob = { v: 2, look: { ...look }, got, done };
   try {
     await RundotGameAPI.appStorage.setItem(KEY, JSON.stringify(blob));
   } catch (e) {

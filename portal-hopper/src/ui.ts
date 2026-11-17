@@ -1,7 +1,7 @@
 // DOM overlays: HUD, toast, title card, wardrobe and touch buttons.
 import { COLORS, HATS, TRAILS, look, saveSoon } from './game/save';
 import { drawPlayer, TAU } from './art/draw';
-import { WORLDS, TOTAL_ITEMS, collectedCount, type World } from './game/worlds';
+import { WORLDS, TOTAL_ITEMS, ORDER, collectedCount, levelsDone, type World } from './game/worlds';
 import { isMuted, setMuted, initAudio } from './game/audio';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -23,6 +23,9 @@ export function updateHud(W: World) {
   $('wname').textContent = W.title;
   $('wcount').textContent = `${W.emoji} ${W.items.filter(i => i.got).length}/${W.items.length}`;
   $('total').textContent = `🏆 ${collectedCount()}/${TOTAL_ITEMS}`;
+  const pw = $('wpower');
+  pw.hidden = !W.powerName && W.id !== 'hub';
+  pw.textContent = W.id === 'hub' ? `🚩 ${levelsDone()}/${ORDER.length} levels done` : `⚡ ${W.powerName}${W.done ? ' · ✓ done' : ''}`;
 }
 
 function start() {
