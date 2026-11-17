@@ -18,6 +18,10 @@ f12-games/        F12 Games build + upload tools (a copy of the user's f12-games
 - **After `rundot deploy`:** the PostToolUse hook in `.claude/settings.json` runs
   `f12-games/tools/after-run-deploy.mjs`, which does the same F12 release automatically for any
   game folder with an `f12.config.json`.
+- **On GitHub:** `.github/workflows/f12-release.yml` releases to F12 on every push to `main` (only the
+  game folders the push changed; a change in `f12-games/` releases all games). The Actions tab's
+  "Run workflow" button releases all games or one. The FTP login is in the repo's Actions secrets.
+  Cloud sessions can't reach the FTP server, so merging to `main` is how a cloud session ships to F12.
 - `npm run release` with no flags deploys to RUN (private) and F12 together; `-- --run` is RUN
   only; `-- --dry` builds and lists what would upload without sending anything.
 - A new game joins F12 with the `add-to-f12` skill (`.claude/skills/add-to-f12/`): it wires

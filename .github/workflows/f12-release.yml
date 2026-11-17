@@ -1,0 +1,99 @@
+# Releases games to F12 Games (games.f12crowd.com) when main changes.
+#
+# - A push to main releases every game folder (one with an f12.config.json) that the push changed.
+#   A change under f12-games/ (the shared shim and tools) releases every game.
+# - "Run workflow" on the Actions tab releases every game, or just the one you type in.
+# - The FTP login comes from the repository's Actions secrets (Settings > Secrets and variables >
+#   Actions): FTP_HOST, FTP_USER, FTP_PASS, FTP_ROOT, FTP_SECURE, FTP_PORT, FTP_TLS_NAME.
+#   This repo is public: never put any of them in a file.
+# - RUN is not deployed from here (that needs a RUN login); this is F12 only.
+
+name: Release to F12 Games
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      game:
+        description: "Game folder to release (leave empty for all games)"
+        required: false
+        default: ""
+
+concurrency:
+  group: f12-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Pick the games to release
+        id: games
+        env:
+          BEFORE: ${{ github.event.before }}
+          INPUT_GAME: ${{ github.event.inputs.game }}
+        run: |
+          all=$(for f in */f12.config.json; do [ -f "$f" ] && dirname "$f"; done)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "$INPUT_GAME" ]; then games="$INPUT_GAME"; else games="$all"; fi
+          elif [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            games="$all"
+          else
+            changed=$(git diff --name-only "$BEFORE" "$GITHUB_SHA")
+            if echo "$changed" | grep -q '^f12-games/'; then
+              games="$all"
+            else
+              games=$(for g in $all; do echo "$changed" | grep -q "^$g/" && echo "$g"; done)
+            fi
+          fi
+          games=$(echo $games)
+          echo "Games to release: ${games:-none}"
+          echo "list=$games" >> "$GITHUB_OUTPUT"
+
+      # Remembers what was uploaded last time, so only changed files are sent.
+      - name: Restore the upload record
+        if: steps.games.outputs.list != ''
+        uses: actions/cache@v4
+        with:
+          path: f12-games/.upload-cache
+          key: f12-upload-cache-${{ github.run_id }}
+          restore-keys: f12-upload-cache-
+
+      - name: Install the F12 tools
+        if: steps.games.outputs.list != ''
+        run: npm ci --no-audit --no-fund
+        working-directory: f12-games
+
+      - name: Build and upload
+        if: steps.games.outputs.list != ''
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          FTP_ROOT: ${{ secrets.FTP_ROOT }}
+          FTP_SECURE: ${{ secrets.FTP_SECURE }}
+          FTP_PORT: ${{ secrets.FTP_PORT }}
+          FTP_TLS_NAME: ${{ secrets.FTP_TLS_NAME }}
+          GAMES: ${{ steps.games.outputs.list }}
+        run: |
+          for k in FTP_HOST FTP_USER FTP_PASS FTP_ROOT; do
+            if [ -z "${!k}" ]; then echo "::error::The $k secret is missing (Settings > Secrets and variables > Actions)"; exit 1; fi
+          done
+          for g in $GAMES; do
+            echo "::group::Release $g"
+            (cd "$g" && npm ci --no-audit --no-fund && npm run release -- --pwa)
+            echo "::endgroup::"
+          done
