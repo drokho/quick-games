@@ -11,7 +11,9 @@ import { resumeAudio, suspendAudio } from './game/audio';
 import { WORLDS } from './game/worlds';
 
 const DPR = () => Math.min(window.devicePixelRatio || 1, 2);
-const deviceSize = () => ({ w: Math.max(1, Math.round(window.innerWidth * DPR())), h: Math.max(1, Math.round(window.innerHeight * DPR())) });
+// Size to the game area, not the window: on F12 Games the portal's bar takes the top of the screen.
+const area = () => { const r = document.getElementById('app')?.getBoundingClientRect(); return r && r.height > 0 ? r : { width: window.innerWidth, height: window.innerHeight, bottom: window.innerHeight }; };
+const deviceSize = () => { const r = area(); return { w: Math.max(1, Math.round(r.width * DPR())), h: Math.max(1, Math.round(r.height * DPR())) }; };
 
 function safe(fn: () => void) { try { fn(); } catch { /* host not ready: ignore */ } }
 

@@ -67,7 +67,8 @@ export default class PlayScene extends Phaser.Scene {
     let band = 0;
     if (this.touch) {
       const r = document.getElementById('bL')?.getBoundingClientRect();
-      band = r && r.height > 0 ? Math.max(0, window.innerHeight - r.top + 6) * dpr : 140 * dpr;
+      const bottom = document.getElementById('app')?.getBoundingClientRect().bottom ?? window.innerHeight;
+      band = r && r.height > 0 ? Math.max(0, bottom - r.top + 6) * dpr : 140 * dpr;
     }
     const need = this.touch ? 470 : LH;
     this.scale_ = Math.min((h - band) / need, w / 620);
