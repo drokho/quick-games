@@ -107,7 +107,7 @@ const SEGS: Record<SegKind | 'slide', Seg> = {
     b.walker(x + 60, x + w - 60);
     if (b.r() < 0.5) b.walker(x + 60, x + w - 60);
     b.line(x + w * 0.3, GY - 110, x + w * 0.7, GY - 110, 3);
-    if (b.r() < 0.6) { const px = x + w / 2 - 80; b.plat(px, GY - 150, 160); b.line(px + 30, GY - 185, px + 130, GY - 185, 2); }
+    if (b.r() < 0.6) { const px = x + w / 2 - 80; b.plat(px, GY - 115, 160); b.line(px + 30, GY - 150, px + 130, GY - 150, 2); }
     return x + w;
   },
   flyers(b, x) {
@@ -117,8 +117,8 @@ const SEGS: Record<SegKind | 'slide', Seg> = {
     return x + 600;
   },
   movers(b, x) {
-    b.movers.push({ bx: x + 260, by: GY - 150, x: x + 260, y: GY - 150, w: 110, ax: 140, ay: 0, sp: 1.1, ph: b.rnd(0, 6), dx: 0, dy: 0 });
-    b.line(x + 140, GY - 190, x + 380, GY - 190, 4);
+    b.movers.push({ bx: x + 260, by: GY - 115, x: x + 260, y: GY - 115, w: 110, ax: 140, ay: 0, sp: 1.1, ph: b.rnd(0, 6), dx: 0, dy: 0 });
+    b.line(x + 140, GY - 155, x + 380, GY - 155, 4);
     b.movers.push({ bx: x + 560, by: GY - 200, x: x + 560, y: GY - 200, w: 100, ax: 0, ay: 110, sp: 1.0, ph: b.rnd(0, 6), dx: 0, dy: 0 });
     b.plat(x + 650, GY - 330, 150); b.line(x + 680, GY - 365, x + 770, GY - 365, 3);
     return x + 860;
@@ -155,7 +155,7 @@ const SEGS: Record<SegKind | 'slide', Seg> = {
     return x + 620;
   },
   high(b, x) {
-    const steps: [number, number][] = [[80, 190], [260, 270], [440, 350], [620, 270]];
+    const steps: [number, number][] = [[80, 110], [250, 190], [420, 270], [600, 190]];
     for (const [dx, dy] of steps) { b.plat(x + dx, GY - dy, 120); b.line(x + dx + 30, GY - dy - 35, x + dx + 90, GY - dy - 35, 2); }
     b.line(x + 120, GY - 30, x + 680, GY - 30, 3);
     return x + 800;
