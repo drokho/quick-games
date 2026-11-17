@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Portal Hopper</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <div class="hud">
+      <div class="pill">
+        <div id="wname">Portal Plaza</div>
+        <div class="counts"><span id="wcount">⭐ 0/10</span><span id="total">🏆 0/41</span></div>
+      </div>
+      <div class="hud-btns">
+        <button class="icon-btn" id="wardBtn" aria-label="Change your character">👕<span>Style</span></button>
+        <button class="icon-btn" id="muteBtn" aria-label="Mute music">🔊</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <div class="hint" id="hint">← → or A/D to move · Space to jump · walk into a portal to teleport</div>
+
+    <div class="controls" id="controls">
+      <div class="pad">
+        <button class="ctl" id="bL" aria-label="Move left">◀</button>
+        <button class="ctl" id="bR" aria-label="Move right">▶</button>
+      </div>
+      <button class="ctl jump" id="bJ" aria-label="Jump">Jump</button>
+    </div>
+
+    <div class="overlay" id="start">
+      <div class="card">
+        <h1 class="title">Portal Hopper</h1>
+        <p>Hop through portals to spooky, spacey and frosty worlds. Ride the giant slides, dress up your hopper, and find every hidden treat.</p>
+        <button class="big" id="playBtn">Tap to play</button>
+      </div>
+    </div>
+
+    <div class="overlay" id="ward" hidden>
+      <div class="card">
+        <div class="ward-head"><h2>Style your hopper</h2><button class="done" id="wardDone">Done</button></div>
+        <canvas id="prev" width="280" height="280"></canvas>
+        <h3>Color</h3><div class="opts" id="colors"></div>
+        <h3>Hat</h3><div class="opts" id="hats"></div>
+        <h3>Trail</h3><div class="opts" id="trails"></div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
