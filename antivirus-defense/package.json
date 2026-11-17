@@ -1,0 +1,54 @@
+{
+    "name": "antivirus-defense",
+    "version": "1.0.0",
+    "description": "Antivirus Defense: a tower defense where antivirus tools stop rogue AI hackers (Pixi.js + React, from the RUN tower defense template)",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "_build": "tsc --noEmit && vite build",
+        "build": "npm run _build",
+        "build:bundled": "cross-env RUNDOT_GAME_DISABLE_EMBEDDED_LIBS=true npm run _build",
+        "preview": "vite preview",
+        "test": "node -e \"const [a,b]=process.versions.node.split('.').map(Number);if(a>=24||(a===22&&b>=18)||(a===23&&b>=6)){process.exit(require('child_process').spawnSync(process.execPath,['--test','verify/save-gate.test.ts'],{stdio:'inherit'}).status??1)}console.log('The save tests need Node 22.18 or later. Skipped.')\"",
+        "deploy": "npm run build && rundot deploy",
+        "balance": "esbuild scripts/simulate.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/balance-sim.mjs --log-level=warning && node node_modules/.cache/balance-sim.mjs"
+    },
+    "keywords": [
+        "pixi",
+        "react",
+        "tailwind",
+        "vite",
+        "typescript",
+        "game"
+    ],
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "allowScripts": {
+        "@firebase/util": true,
+        "@series-inc/rundot-game-sdk": true,
+        "esbuild": true,
+        "fsevents": true,
+        "protobufjs": true
+    },
+    "dependencies": {
+        "@series-inc/rundot-game-sdk": "^5.34.0",
+        "pixi.js": "^8.18.1",
+        "react": "19.2.4",
+        "react-dom": "19.2.4"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.3",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "@vitejs/plugin-react": "^6.1.2",
+        "cross-env": "^7.0.3",
+        "esbuild": "^0.28.0",
+        "firebase": "^12.16.0",
+        "tailwindcss": "^4.3.3",
+        "typescript": "^7.0.2",
+        "vite": "^8.3.4"
+    },
+    "engines": {
+        "node": "^20.19.0 || >=22.12.0"
+    }
+}
