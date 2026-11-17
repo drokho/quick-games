@@ -166,3 +166,12 @@ leaderboard fetches return an empty mock board (the UI shows EMPTY, not
 offline), rewarded ads auto-complete, engagement prompts may report
 unavailable, and saves go to localStorage only. Real behavior appears in
 the RUN host.
+
+## F12 Games
+
+This game is also on F12 Games (https://games.f12crowd.com/games/antivirus-defense/), built with `npm run build:pwa`
+(the RUN SDK is swapped for `../f12-games/platform/run-shim.ts`).
+- Kids' game; leaderboards are shared on the F12 server under generated nicknames (`"leaderboard": "shared"`).
+- On F12 there are no ads or RUN Bits (the shim reports neither) and Like/Comments are hidden.
+- Release to F12 with `npm run release -- --pwa`, or merge to `main` (GitHub releases it); a `rundot deploy` that Claude runs also updates F12 (hook).
+- After adding a new RundotGameAPI call, run `node ../f12-games/tools/check-sdk.mjs .` and fill any gap in the shim.

@@ -2,8 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { rundotGameLibrariesPlugin } from '@series-inc/rundot-game-sdk/vite';
+import { f12Pwa } from '../f12-games/platform/vite-plugin';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
     // REQUIRED for RUN: deployed builds are served from a subdirectory, so all
     // asset URLs must be relative. Do not change this.
     base: './',
@@ -13,7 +14,8 @@ export default defineConfig({
     // bundle. Externalization only engages when the installed version exactly
     // matches the host's — hence the exact react/react-dom pins in package.json.
     // `npm run build:bundled` disables it for a standalone build.
-    plugins: [rundotGameLibrariesPlugin(), react(), tailwindcss()],
+    // `vite build --mode pwa` builds the F12 Games version (RUN SDK swapped for the F12 shim)
+    plugins: mode === 'pwa' ? [react(), tailwindcss(), f12Pwa()] : [rundotGameLibrariesPlugin(), react(), tailwindcss()],
     server: {
         allowedHosts: true,
     },
@@ -21,4 +23,4 @@ export default defineConfig({
         // Top-level await in the boot path (and in the SDK) needs a modern target.
         target: 'esnext',
     },
-});
+}));

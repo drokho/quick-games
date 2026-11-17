@@ -790,6 +790,40 @@ function error(...args: unknown[]) {
   console.error('[game]', ...args);
 }
 
+// ---------- popups (toasts; Like and Comments are RUN-only) ----------
+let toastEl: HTMLDivElement | null = null;
+let toastTimer: ReturnType<typeof setTimeout> | undefined;
+/** A small plain toast at the bottom of the screen; no links, no buttons. */
+async function showToast(message: string, options?: { duration?: number }): Promise<boolean> {
+  if (typeof document === 'undefined') return false;
+  if (!toastEl) {
+    toastEl = document.createElement('div');
+    toastEl.setAttribute('role', 'status');
+    toastEl.style.cssText = 'position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:86vw;padding:10px 16px;border-radius:12px;background:rgba(16,8,32,.92);color:#fff;font:600 16px/1.3 system-ui,sans-serif;z-index:2147483000;pointer-events:none;opacity:0;transition:opacity .2s;text-align:center';
+    document.body.appendChild(toastEl);
+  }
+  toastEl.textContent = String(message).slice(0, 200);
+  toastEl.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { if (toastEl) toastEl.style.opacity = '0'; }, Math.min(8000, options?.duration ?? 2500));
+  return true;
+}
+// No accounts and no free-text comments on a kids' platform: both report unavailable,
+// so games hide their Like and Comments buttons.
+const popups = {
+  showToast,
+  canShowLikeDialog: async () => ({ available: false }),
+  canShowCommentsPanel: async () => ({ available: false }),
+  getLikeState: async () => ({ isLiked: false, likesCount: 0 }),
+  showLikeDialog: async () => ({ shown: false as const, reason: 'unavailable' as const }),
+  showCommentsPanel: async () => ({ shown: false as const, reason: 'unavailable' as const }),
+};
+
+/** Back out of the game: return to the F12 Games portal. */
+async function requestPopOrQuit(): Promise<boolean> {
+  try { window.location.href = '/'; return true; } catch { return false; }
+}
+
 const api: Record<string, unknown> = {
   appStorage: makeStorage(NS),
   deviceCache: makeStorage(`${NS}device:`),
@@ -827,6 +861,10 @@ const api: Record<string, unknown> = {
   log,
   error,
   logging: { logDebug: log, logError: error },
+  // RUN sets this once the host is ready; on F12 the page itself is the host
+  context: { platform: 'f12-games' },
+  popups,
+  requestPopOrQuit,
 };
 
 /** Unknown SDK features warn once and do nothing, so a stray call can't crash the game. */

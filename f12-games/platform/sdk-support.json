@@ -119,6 +119,16 @@
     ],
     "app": [
       "getMyRole"
+    ],
+    "context": true,
+    "requestPopOrQuit": true,
+    "popups": [
+      "showToast",
+      "canShowLikeDialog",
+      "canShowCommentsPanel",
+      "getLikeState",
+      "showLikeDialog",
+      "showCommentsPanel"
     ]
   },
   "decisions": {
@@ -135,6 +145,8 @@
     "attribution": "No tracking: always null.",
     "app": "getMyRole is always none, so tester and owner tools stay hidden.",
     "system": "Safe area from CSS env(); fullscreen through the browser (unavailable on iPhone Safari, always-on in the installed app); the ads and purchases capabilities are false.",
-    "requestTimeAsync": "No time server: serverTime is the device clock, so a player who changes the clock can skip ahead on daily rewards."
+    "requestTimeAsync": "No time server: serverTime is the device clock, so a player who changes the clock can skip ahead on daily rewards.",
+    "popups": "Toasts show as a small plain message. Like and Comments report unavailable (no accounts, no free-text comments on a kids platform), so games hide those buttons.",
+    "requestPopOrQuit": "Goes back to the F12 Games portal."
   }
 }

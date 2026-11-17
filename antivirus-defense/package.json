@@ -12,7 +12,10 @@
         "preview": "vite preview",
         "test": "node -e \"const [a,b]=process.versions.node.split('.').map(Number);if(a>=24||(a===22&&b>=18)||(a===23&&b>=6)){process.exit(require('child_process').spawnSync(process.execPath,['--test','verify/save-gate.test.ts'],{stdio:'inherit'}).status??1)}console.log('The save tests need Node 22.18 or later. Skipped.')\"",
         "deploy": "npm run build && rundot deploy",
-        "balance": "esbuild scripts/simulate.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/balance-sim.mjs --log-level=warning && node node_modules/.cache/balance-sim.mjs"
+        "balance": "esbuild scripts/simulate.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/balance-sim.mjs --log-level=warning && node node_modules/.cache/balance-sim.mjs",
+        "build:pwa": "tsc --noEmit && vite build --mode pwa",
+        "dev:pwa": "vite --mode pwa",
+        "release": "node ../f12-games/tools/release.mjs"
     },
     "keywords": [
         "pixi",

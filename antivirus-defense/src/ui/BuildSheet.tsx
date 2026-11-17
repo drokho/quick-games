@@ -38,7 +38,7 @@ function tagFor(def: TowerDef): string {
     if (def.status?.type === 'slow') return 'Slows';
     if (def.status?.type === 'poison') return 'Poison';
     if (def.status?.type === 'burn') return 'Burns';
-    if (def.status?.type === 'frozen') return 'Freezes';
+    if (def.status?.type === 'frozen') return 'Locks';
     if (def.status?.type === 'knockback') return 'Knocks';
     if (def.attack.kind === 'projectile' && def.attack.splash > 0) return 'Splash';
     return 'Rapid';

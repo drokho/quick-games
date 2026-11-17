@@ -1,0 +1,20 @@
+{
+  "slug": "antivirus-defense",
+  "title": "Antivirus Defense",
+  "shortName": "Antivirus",
+  "description": "Be the antivirus! Build firewalls, scanners and quarantine locks to stop rogue AI hackers.",
+  "about": "Rogue AI hackers are racing along the data bus toward the computer's core. Install antivirus defenders on the chip sockets: Firewalls, Throttlers, Purge Bombs, Scanners and Quarantine locks.\n\nUpgrade your towers, survive all 10 waves, then see how long you last in endless mode. The leaderboards are shared on F12 Games under a made-up nickname.",
+  "themeColor": "#2ee6d6",
+  "background": "#0b1424",
+  "orientation": "portrait",
+  "icons": {
+    "192": "f12/icon-192.png",
+    "512": "f12/icon-512.png"
+  },
+  "thumbnail": "public/thumbnail.jpg",
+  "rooms": {},
+  "lazy": [],
+  "order": 51,
+  "audience": "kids",
+  "leaderboard": "shared"
+}
