@@ -23,7 +23,7 @@ const SONGS: Record<string, Song> = Object.fromEntries(DEFS.map(d => {
 const mtof = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
 
 let AC: AudioContext | null = null;
-let master: GainNode, musGain: GainNode, noiseBuf: AudioBuffer;
+let master: GainNode, musGain: GainNode;
 let muted = false, step = 0, nextT = 0, song = 'hub';
 const beats: number[] = []; // scheduled quarter-note times (for the Disco Dome beat jump)
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -53,8 +53,6 @@ export function initAudio(): void {
   const fb = AC.createGain(); fb.gain.value = 0.3;
   const wet = AC.createGain(); wet.gain.value = 0.22;
   musGain.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(master);
-  noiseBuf = AC.createBuffer(1, Math.floor(AC.sampleRate * 0.3), AC.sampleRate);
-  const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   nextT = AC.currentTime + 0.1;
   timer = setInterval(sched, 25);
 }
@@ -71,29 +69,23 @@ function tone(f: number, t: number, d: number, type: OscillatorType, v: number, 
   let node: AudioNode = o;
   if (cut) { const fl = ac.createBiquadFilter(); fl.type = 'lowpass'; fl.frequency.value = cut; o.connect(fl); node = fl; }
   node.connect(g); g.connect(dest);
-  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.025); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
   o.start(t); o.stop(t + d + 0.05); return o;
 }
 function kick(t: number) {
   const ac = AC!; const o = ac.createOscillator(), g = ac.createGain();
   o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15);
-  g.gain.setValueAtTime(0.32, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.32, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
   o.connect(g); g.connect(musGain); o.start(t); o.stop(t + 0.22);
-}
-function hat(t: number, v: number) {
-  const ac = AC!; const s = ac.createBufferSource(); s.buffer = noiseBuf;
-  const f = ac.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 7000;
-  const g = ac.createGain(); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
-  s.connect(f); f.connect(g); g.connect(musGain); s.start(t); s.stop(t + 0.06);
 }
 function playStep(s: number, time: number) {
   const S = SONGS[song], i = s % 8, bar = Math.floor(s / 8) % S.chords.length, ch = S.chords[bar];
   if (i % 2 === 0) { beats.push(time); if (beats.length > 6) beats.shift(); }
   const idx = S.pat[i];
-  if (idx >= 0) { const n = S.root + ch[idx % ch.length] + 12 * Math.floor(idx / ch.length) + 12 * (S.oct || 0); tone(mtof(n), time, S.arpDur, S.wave, S.vol, musGain, S.cut); }
+  if (idx >= 0) { const n = S.root + ch[idx % ch.length] + 12 * Math.floor(idx / ch.length) + 12 * (S.oct || 0); tone(mtof(n), time, S.arpDur, S.wave, S.vol, musGain, S.wave === 'square' || S.wave === 'sawtooth' ? Math.min(S.cut || 1800, 1800) : S.cut); }
   if (S.bass.includes(i)) tone(mtof(S.root + ch[0] - 24), time, S.bassDur || 0.32, S.bassWave, 0.2, musGain, 700);
-  if (S.kick.includes(i)) kick(time);
-  if (S.hat.includes(i)) hat(time, S.hatVol || 0.05);
+  // No drums in the music: on phone speakers the noise hi-hat and the kick both came out as a
+  // repetitive clicking. (The song tables keep their kick/hat lists, unused.)
   if (S.spook && i === 0 && bar % 2 === 1) {
     const o = tone(mtof(S.root + 24 + ch[2]), time, 1.4, 'sine', 0.05, musGain);
     o.frequency.linearRampToValueAtTime(mtof(S.root + 23 + ch[2]), time + 1.3);
